@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import * as THREE from 'three';
 
@@ -10,38 +10,52 @@ import * as THREE from 'three';
   styleUrl: './app.component.scss',
   providers: [{ provide: Window, useValue: window }],
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit {
   window = inject(Window);
 
+  camera!: THREE.PerspectiveCamera;
+  scene!: THREE.Scene;
+  renderer!: THREE.WebGLRenderer;
+
+  width: number = window.innerWidth;
+  height: number = window.innerHeight;
+
+  ngOnInit(): void {
+    this.init();
+  }
+
   ngAfterViewInit(): void {
-    const width = window.innerWidth,
-      height = window.innerHeight;
-
-    // init
-
-    const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-    camera.position.z = 1;
-
-    const scene = new THREE.Scene();
-
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
     const material = new THREE.MeshNormalMaterial();
 
     const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    this.scene.add(mesh);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    renderer.setAnimationLoop(animate);
-    document.body.appendChild(renderer.domElement);
+    this.renderer.setAnimationLoop((time) => {
+      this.animate(time, mesh);
+    });
+    document.body.appendChild(this.renderer.domElement);
+  }
 
-    // animation
+  private animate(time: number, mesh: THREE.Mesh) {
+    mesh.rotation.x = time / 2000;
+    mesh.rotation.y = time / 1000;
 
-    function animate(time: number) {
-      mesh.rotation.x = time / 2000;
-      mesh.rotation.y = time / 1000;
+    this.renderer.render(this.scene, this.camera);
+  }
 
-      renderer.render(scene, camera);
-    }
+  private init() {
+    this.camera = new THREE.PerspectiveCamera(
+      70,
+      this.width / this.height,
+      0.01,
+      10
+    );
+    this.camera.position.z = 1;
+
+    this.scene = new THREE.Scene();
+
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setSize(this.width, this.height);
   }
 }
