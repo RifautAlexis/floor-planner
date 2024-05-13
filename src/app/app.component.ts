@@ -24,10 +24,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   /** The 2D context. */
   private context!: CanvasRenderingContext2D;
 
-  // grid parameters
+  /** Grid parameters */
   gridSpacing = 20; // pixels
   gridWidth = 1;
   gridColor = "#f1f1f1";
+
+  /** Drawing */
+  startingPointX: number | null = null;
+  startingPointY: number | null = null
 
   ngOnInit(): void {
     this.canvasElement = <HTMLCanvasElement>document.getElementById('floorplanner-canvas');
@@ -42,6 +46,17 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   private init() {
     this.handleWindowResize();
+
+    this.canvasElement.onmousedown = ((event: MouseEvent) => {
+      console.log('mousedown', event);
+      if(!!this.startingPointX && !!this.startingPointY) {
+        this.drawLine(this.startingPointX, this.startingPointY, event.clientX, event.clientY, 5, 'black');
+      } else {
+        this.startingPointX = event.clientX;
+        this.startingPointY = event.clientY;
+      }
+      
+    });
   }
 
   private animate() { }
