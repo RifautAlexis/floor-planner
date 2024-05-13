@@ -51,6 +51,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       console.log('mousedown', event);
       if(!!this.startingPointX && !!this.startingPointY) {
         this.drawLine(this.startingPointX, this.startingPointY, event.clientX, event.clientY, 5, 'black');
+        this.startingPointX = null;
+        this.startingPointY = null;
       } else {
         this.startingPointX = event.clientX;
         this.startingPointY = event.clientY;
