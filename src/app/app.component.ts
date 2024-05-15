@@ -1,11 +1,5 @@
-import { AfterViewInit, Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import {
-    CSS2DRenderer,
-    CSS2DObject,
-} from 'three/examples/jsm/renderers/CSS2DRenderer'
 
 @Component({
   selector: 'app-root',
@@ -30,8 +24,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   gridColor = "#f1f1f1";
 
   /** Drawing */
+  startDrawing = false;
   startingPointX: number | null = null;
-  startingPointY: number | null = null
+  startingPointY: number | null = null;
+  lastPointX: number | null = null;
+  lastPointY: number | null = null;
+
+  /** Lines Drawed */
+  lines: {strartingNode: {x: number, y: number}, endNode: {x: number, y: number} }[] = [];
 
   ngOnInit(): void {
     this.canvasElement = <HTMLCanvasElement>document.getElementById('floorplanner-canvas');
@@ -48,15 +48,33 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.handleWindowResize();
 
     this.canvasElement.onmousedown = ((event: MouseEvent) => {
-      console.log('mousedown', event);
-      if(!!this.startingPointX && !!this.startingPointY) {
-        this.drawLine(this.startingPointX, this.startingPointY, event.clientX, event.clientY, 5, 'black');
+      if (this.startDrawing) {
+        this.lines.push({
+          strartingNode: {x: this.startingPointX!, y: this.startingPointY!},
+          endNode: {x: this.lastPointX!, y: this.lastPointY!}
+        });
         this.startingPointX = null;
         this.startingPointY = null;
+        console.log('this.lines', this.lines);
       } else {
         this.startingPointX = event.clientX;
         this.startingPointY = event.clientY;
       }
+        
+      this.startDrawing = !this.startDrawing;
+      console.log('onmousedown', this.startDrawing);
+      
+    });
+
+    this.canvasElement.onmousemove = ((event: MouseEvent) => {
+      event.preventDefault();      
+      if(!this.startingPointX || !this.startingPointY) return;
+
+      console.log(this.startDrawing, this.startingPointX, this.startingPointY);
+      this.lastPointX = event.clientX;
+      this.lastPointY = event.clientY;
+
+      this.draw();
       
     });
   }
@@ -76,13 +94,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.drawGrid();
 
-    // if (this.viewmodel.mode == floorplannerModes.DRAW) {
-    //   this.drawTarget(this.viewmodel.targetX, this.viewmodel.targetY, this.viewmodel.lastNode);
-    // }
+    this.lines.forEach((line) => {
+      this.drawLine(line.strartingNode.x, line.strartingNode.y, line.endNode.x, line.endNode.y, 5, 'black');
+    });
 
-    // this.floorplan.getWalls().forEach((wall) => {
-    //   this.drawWallLabels(wall);
-    // });
+    if(this.startDrawing) {
+      console.log('this.startDrawing', this.startingPointX!, this.startingPointY!, this.lastPointX!, this.lastPointY!);
+      this.drawLine(this.startingPointX!, this.startingPointY!, this.lastPointX!, this.lastPointY!, 5, 'black');
+    }
   }
 
   /** */
