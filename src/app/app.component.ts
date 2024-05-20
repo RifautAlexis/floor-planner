@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Application, Graphics } from 'pixi.js';
+import { Application, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { Grid } from './core/grid';
 import { Viewport } from 'pixi-viewport';
 import { Blueprint } from './core/blueprint';
@@ -58,7 +58,12 @@ export class AppComponent implements OnInit {
     floorPlannerContainer.addChild(this.blueprint);
     floorPlannerContainer.addChild(this.drawZone);
 
-    floorPlannerContainer.onmousedown = (event: MouseEvent) => {
+    floorPlannerContainer.onmouseup = (_: FederatedPointerEvent) => {
+      this.blueprint.startDrawing = !this.blueprint.startDrawing
+    }
+
+    floorPlannerContainer.onmousedown = (event: FederatedPointerEvent) => {
+      console.log(event.data.getLocalPosition(floorPlannerContainer));
       if (this.blueprint.startDrawing) {
         this.blueprint.lines.push({
           strartingNode: { x: this.blueprint.startingPointX!, y: this.blueprint.startingPointY! },
@@ -67,26 +72,23 @@ export class AppComponent implements OnInit {
         this.blueprint.startingPointX = null;
         this.blueprint.startingPointY = null;
 
-        console.log('this.lines', this.blueprint.lines);
-
         this.refresh();
       } else {
-        this.blueprint.startingPointX = event.clientX;
-        this.blueprint.startingPointY = event.clientY;
+        this.blueprint.startingPointX = event.global.x;
+        this.blueprint.startingPointY = event.global.y;
       }
-
-      this.blueprint.startDrawing = !this.blueprint.startDrawing;
     };
 
-    floorPlannerContainer.onmousemove = (event: MouseEvent) => {
+    floorPlannerContainer.onmousemove = (event: FederatedPointerEvent) => {
       event.preventDefault();
       if (!this.blueprint.startingPointX || !this.blueprint.startingPointY) return;
 
-      this.blueprint.lastPointX = event.clientX;
-      this.blueprint.lastPointY = event.clientY;
-      console.log(this.blueprint.startDrawing, this.blueprint.startingPointX, this.blueprint.startingPointY, this.blueprint.lastPointX, this.blueprint.lastPointY);
+      if(this.blueprint.startDrawing) {
+        this.blueprint.lastPointX = event.global.x;
+        this.blueprint.lastPointY = event.global.y;
 
-      this.blueprint.draw(this.drawZone);
+        this.blueprint.draw(this.drawZone);
+      }
     };
   }
 
