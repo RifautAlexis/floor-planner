@@ -88,11 +88,6 @@ export class AppComponent implements OnInit {
 
       this.blueprint.draw(this.drawZone);
     };
-
-    // this.drawZone.setStrokeStyle({ width: 5, color: 'blue' })
-    // .moveTo(100, 100)
-    // .lineTo(this.lastPointX!, this.lastPointX!)
-    // .stroke();
   }
 
   refresh() {
