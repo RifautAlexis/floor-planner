@@ -51,9 +51,13 @@ export class AppComponent implements OnInit {
       events: this.app.renderer.events,
     });
     this.app.stage.addChild(floorPlannerContainer);
-
-    floorPlannerContainer.drag().pinch().wheel().decelerate();
-
+    
+    floorPlannerContainer
+      // .drag()
+      .pinch()
+      .wheel()
+      .decelerate();
+    
     floorPlannerContainer.addChild(this.grid);
     floorPlannerContainer.addChild(this.blueprint);
     floorPlannerContainer.addChild(this.drawZone);
@@ -63,7 +67,6 @@ export class AppComponent implements OnInit {
     }
 
     floorPlannerContainer.onmousedown = (event: FederatedPointerEvent) => {
-      console.log(event.data.getLocalPosition(floorPlannerContainer));
       if (this.blueprint.startDrawing) {
         this.blueprint.lines.push({
           strartingNode: { x: this.blueprint.startingPointX!, y: this.blueprint.startingPointY! },
@@ -74,8 +77,9 @@ export class AppComponent implements OnInit {
 
         this.refresh();
       } else {
-        this.blueprint.startingPointX = event.global.x;
-        this.blueprint.startingPointY = event.global.y;
+        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        this.blueprint.startingPointX = x;
+        this.blueprint.startingPointY = y;
       }
     };
 
@@ -84,10 +88,11 @@ export class AppComponent implements OnInit {
       if (!this.blueprint.startingPointX || !this.blueprint.startingPointY) return;
 
       if(this.blueprint.startDrawing) {
-        this.blueprint.lastPointX = event.global.x;
-        this.blueprint.lastPointY = event.global.y;
 
-        this.blueprint.draw(this.drawZone);
+        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        this.blueprint.lastPointX = x;
+        this.blueprint.lastPointY = y;
+        this.blueprint.draw(this.drawZone, this.blueprint.lastPointX, this.blueprint.lastPointY);
       }
     };
   }
@@ -102,5 +107,15 @@ export class AppComponent implements OnInit {
         .lineTo(line.endNode.x, line.endNode.y)
         .stroke();
     });
-}
+  }
+
+  /** */
+  private updateTarget(event: FederatedPointerEvent): {x: number, y: number} {
+    const snapTolerance = 20;
+    console.log(
+      Math.floor(event.global.x / snapTolerance) * snapTolerance,
+      Math.floor(event.global.y / snapTolerance) * snapTolerance
+    );
+    return {x: Math.floor(event.global.x / snapTolerance) * snapTolerance, y: Math.floor(event.global.y / snapTolerance) * snapTolerance};
+  }
 }

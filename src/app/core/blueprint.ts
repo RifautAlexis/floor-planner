@@ -20,11 +20,12 @@ export class Blueprint extends Graphics {
   }
 
   /** */
-  public draw(drawZone: Graphics) {
+  public draw(drawZone: Graphics, endX: number, endY: number) {
     drawZone.clear();
     drawZone.setStrokeStyle({ width: 5, color: 'pink' })
     .moveTo(this.startingPointX!, this.startingPointY!)
-    .lineTo(this.lastPointX!, this.lastPointY!)
+    // .lineTo(this.lastPointX!, this.lastPointY!)
+    .lineTo(endX, endY)
     .stroke();
   }
 }
