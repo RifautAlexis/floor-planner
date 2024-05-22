@@ -85,7 +85,13 @@ export class AppComponent implements OnInit {
 
     floorPlannerContainer.onmousemove = (event: FederatedPointerEvent) => {
       event.preventDefault();
-      if (!this.blueprint.startingPointX || !this.blueprint.startingPointY) return;
+      if (!this.blueprint.startingPointX || !this.blueprint.startingPointY) {        
+        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        this.drawZone.clear();
+        this.drawZone.setStrokeStyle({ width: 5, color: 'pink' })
+        .circle(x, y, 10)
+        .stroke();
+      };
 
       if(this.blueprint.startDrawing) {
 
@@ -112,10 +118,9 @@ export class AppComponent implements OnInit {
   /** */
   private updateTarget(event: FederatedPointerEvent): {x: number, y: number} {
     const snapTolerance = 20;
-    console.log(
-      Math.floor(event.global.x / snapTolerance) * snapTolerance,
-      Math.floor(event.global.y / snapTolerance) * snapTolerance
-    );
-    return {x: Math.floor(event.global.x / snapTolerance) * snapTolerance, y: Math.floor(event.global.y / snapTolerance) * snapTolerance};
+    return {
+      x: (Math.floor(event.global.x / snapTolerance)* snapTolerance) + snapTolerance,
+      y: (Math.floor(event.global.y / snapTolerance) * snapTolerance) + snapTolerance
+    };
   }
 }
