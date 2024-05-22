@@ -118,9 +118,24 @@ export class AppComponent implements OnInit {
   /** */
   private updateTarget(event: FederatedPointerEvent): {x: number, y: number} {
     const snapTolerance = 20;
+    
+    const pointX = this.closestMultipleOfSnapTolerance(event.global.x, snapTolerance);
+    const pointY = this.closestMultipleOfSnapTolerance(event.global.y, snapTolerance);
+
     return {
-      x: (Math.floor(event.global.x / snapTolerance)* snapTolerance) + snapTolerance,
-      y: (Math.floor(event.global.y / snapTolerance) * snapTolerance) + snapTolerance
+      x: pointX,
+      y: pointY
     };
+  }
+
+  private closestMultipleOfSnapTolerance(num: number, snapTolerance: number): number {
+    const lowerMultiple = Math.floor(num / 20) * 20;
+    const upperMultiple = Math.ceil(num / 20) * 20;
+
+    if (Math.abs(num - lowerMultiple) < Math.abs(num - upperMultiple)) {
+        return lowerMultiple;
+    } else {
+        return upperMultiple;
+    }
   }
 }
