@@ -4,6 +4,7 @@ import { Application, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { Grid } from './core/grid';
 import { Viewport } from 'pixi-viewport';
 import { Blueprint } from './core/blueprint';
+import { DrawZone } from './core/draw-zone';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,7 @@ export class AppComponent implements OnInit {
 
   /** Zones */
   blueprint: Blueprint = new Blueprint();
-  drawZone: Graphics = new Graphics();
+  drawZone: DrawZone = new DrawZone();
   grid?: Grid;
 
   async ngOnInit(): Promise<void> {
@@ -63,42 +64,46 @@ export class AppComponent implements OnInit {
     floorPlannerContainer.addChild(this.drawZone);
 
     floorPlannerContainer.onmouseup = (_: FederatedPointerEvent) => {
-      this.blueprint.startDrawing = !this.blueprint.startDrawing
+      this.drawZone.startDrawing = !this.drawZone.startDrawing
     }
 
     floorPlannerContainer.onmousedown = (event: FederatedPointerEvent) => {
-      if (this.blueprint.startDrawing) {
+      if (this.drawZone.startDrawing) {
         this.blueprint.lines.push({
-          strartingNode: { x: this.blueprint.startingPointX!, y: this.blueprint.startingPointY! },
-          endNode: { x: this.blueprint.lastPointX!, y: this.blueprint.lastPointY! },
+          startingNode: { x: this.drawZone.startingPointX!, y: this.drawZone.startingPointY! },
+          endNode: { x: this.drawZone.lastPointX!, y: this.drawZone.lastPointY! },
         });
-        this.blueprint.startingPointX = null;
-        this.blueprint.startingPointY = null;
+        this.drawZone.startingPointX = null;
+        this.drawZone.startingPointY = null;
 
         this.refresh();
+
+        // console.log(this.blueprint.lines);
+        // console.log(this.blueprint.findShapes().length);
       } else {
         const {x, y}: {x: number, y: number} = this.updateTarget(event);
-        this.blueprint.startingPointX = x;
-        this.blueprint.startingPointY = y;
+        this.drawZone.startingPointX = x;
+        this.drawZone.startingPointY = y;
       }
     };
 
     floorPlannerContainer.onmousemove = (event: FederatedPointerEvent) => {
       event.preventDefault();
-      if (!this.blueprint.startingPointX || !this.blueprint.startingPointY) {        
+      if (!this.drawZone.startingPointX || !this.drawZone.startingPointY) {        
         const {x, y}: {x: number, y: number} = this.updateTarget(event);
         this.drawZone.clear();
-        this.drawZone.setStrokeStyle({ width: 5, color: 'pink' })
-        .circle(x, y, 10)
-        .stroke();
+        this.drawZone
+          .setStrokeStyle({ width: 5, color: 'pink' })
+          .circle(x, y, 10)
+          .stroke();
       };
 
-      if(this.blueprint.startDrawing) {
+      if(this.drawZone.startDrawing) {
 
         const {x, y}: {x: number, y: number} = this.updateTarget(event);
-        this.blueprint.lastPointX = x;
-        this.blueprint.lastPointY = y;
-        this.blueprint.draw(this.drawZone, this.blueprint.lastPointX, this.blueprint.lastPointY);
+        this.drawZone.lastPointX = x;
+        this.drawZone.lastPointY = y;
+        this.drawZone.draw();
       }
     };
   }
@@ -109,7 +114,7 @@ export class AppComponent implements OnInit {
     this.blueprint.lines.forEach((line) => {
       this.blueprint
         .setStrokeStyle({ width: 5, color: 'black' })
-        .moveTo(line.strartingNode.x, line.strartingNode.y)
+        .moveTo(line.startingNode.x, line.startingNode.y)
         .lineTo(line.endNode.x, line.endNode.y)
         .stroke();
     });
