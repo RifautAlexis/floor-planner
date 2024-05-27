@@ -2,11 +2,9 @@ import { Graphics } from 'pixi.js';
 
 /** Grid in the background */
 export class Grid extends Graphics {
-    canvasWidth: number;
-    canvasHeight: number
+  canvasWidth: number;
+  canvasHeight: number;
   gridSpacing = 20; // pixels
-  gridLineWidth = 1;
-  gridColor = '#f1f1f1';
 
   constructor(width: number, height: number) {
     super();
@@ -15,11 +13,23 @@ export class Grid extends Graphics {
   }
 
   drawGrid(): void {
-    for (var x = 0; x <= (this.canvasWidth / this.gridSpacing); x++) {
-      this.drawLine(this.gridSpacing * x, 0, this.gridSpacing * x, this.canvasHeight);
+    for (var x = 0; x <= this.canvasWidth / this.gridSpacing; x++) {
+      this.drawLine(
+        this.gridSpacing * x,
+        0,
+        this.gridSpacing * x,
+        this.canvasHeight,
+        x % 5 === 0
+      );
     }
-    for (var y = 0; y <= (this.canvasHeight / this.gridSpacing); y++) {
-      this.drawLine(0, this.gridSpacing * y , this.canvasWidth, this.gridSpacing * y );
+    for (var y = 0; y <= this.canvasHeight / this.gridSpacing; y++) {
+      this.drawLine(
+        0,
+        this.gridSpacing * y,
+        this.canvasWidth,
+        this.gridSpacing * y,
+        y % 5 === 0
+      );
     }
   }
 
@@ -28,8 +38,12 @@ export class Grid extends Graphics {
     startY: number,
     endX: number,
     endY: number,
+    isMainLine: boolean
   ): void {
-    this.setStrokeStyle({ width: this.gridLineWidth, color: 'red' })
+    this.setStrokeStyle({
+      width: isMainLine ? 2 : 1,
+      color: isMainLine ? '#999999' : '#bcbcbc',
+    })
       .moveTo(startX, startY)
       .lineTo(endX, endY)
       .stroke();
