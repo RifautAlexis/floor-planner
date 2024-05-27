@@ -1,10 +1,11 @@
 import { Graphics } from 'pixi.js';
+import { gridSpace } from '../config';
 
 /** Grid in the background */
 export class Grid extends Graphics {
   canvasWidth: number;
   canvasHeight: number;
-  gridSpacing = 20; // pixels
+  gridSpacing = gridSpace; // pixels
 
   constructor(width: number, height: number) {
     super();

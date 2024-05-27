@@ -1,8 +1,7 @@
 import { Graphics } from "pixi.js";
-
-type Point = { x: number; y: number };
-type Line = { startingNode: Point; endNode: Point };
-type Shape = { edges: Line[] };
+import { Room } from "../models/room";
+import { Line } from "../models/line";
+import { Point } from "../models/point";
 
 /** Plan containing lines, rooms, etc */
 export class Blueprint extends Graphics {
@@ -17,7 +16,7 @@ export class Blueprint extends Graphics {
   // ];
 
   /** Lines Drawed */
-  rooms: Shape[] = [];
+  rooms: Room[] = [];
 
   constructor() {
     super();

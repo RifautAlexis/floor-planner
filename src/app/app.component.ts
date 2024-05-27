@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
         // console.log(this.blueprint.lines);
         // console.log(this.blueprint.findShapes().length);
       } else {
-        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        const {x, y}: {x: number, y: number} = this.drawZone.getSnapPoint(event);
         this.drawZone.startingPointX = x;
         this.drawZone.startingPointY = y;
       }
@@ -90,7 +90,7 @@ export class AppComponent implements OnInit {
     floorPlannerContainer.onmousemove = (event: FederatedPointerEvent) => {
       event.preventDefault();
       if (!this.drawZone.startingPointX || !this.drawZone.startingPointY) {        
-        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        const {x, y}: {x: number, y: number} = this.drawZone.getSnapPoint(event);
         this.drawZone.clear();
         this.drawZone
           .setStrokeStyle({ width: 5, color: 'pink' })
@@ -100,7 +100,7 @@ export class AppComponent implements OnInit {
 
       if(this.drawZone.startDrawing) {
 
-        const {x, y}: {x: number, y: number} = this.updateTarget(event);
+        const {x, y}: {x: number, y: number} = this.drawZone.getSnapPoint(event);
         this.drawZone.lastPointX = x;
         this.drawZone.lastPointY = y;
         this.drawZone.draw();
@@ -118,29 +118,5 @@ export class AppComponent implements OnInit {
         .lineTo(line.endNode.x, line.endNode.y)
         .stroke();
     });
-  }
-
-  /** */
-  private updateTarget(event: FederatedPointerEvent): {x: number, y: number} {
-    const snapTolerance = 20;
-    
-    const pointX = this.closestMultipleOfSnapTolerance(event.global.x, snapTolerance);
-    const pointY = this.closestMultipleOfSnapTolerance(event.global.y, snapTolerance);
-
-    return {
-      x: pointX,
-      y: pointY
-    };
-  }
-
-  private closestMultipleOfSnapTolerance(num: number, snapTolerance: number): number {
-    const lowerMultiple = Math.floor(num / 20) * 20;
-    const upperMultiple = Math.ceil(num / 20) * 20;
-
-    if (Math.abs(num - lowerMultiple) < Math.abs(num - upperMultiple)) {
-        return lowerMultiple;
-    } else {
-        return upperMultiple;
-    }
   }
 }
